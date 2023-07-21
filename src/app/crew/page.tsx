@@ -15,13 +15,16 @@ async function getCrew() {
 
   for (let i = 0; i < crew.length; i++) {
     const patches: string[] = [];
+    const launchNames: string[] = [];
     // call other apis and add properties to the crewMember object
     // remember this will create a new CrewMemberType
     for (let j = 0; j < crew[i].launches.length; j++) {
       const launchData = await getLaunchesForCrew(crew[i].launches[j]);
       patches.push(launchData.links.patch.small);
+      launchNames.push(launchData.name);
     }
     crew[i].patches = patches;
+    crew[i].launchNames = launchNames;
   }
   return crew;
 }

@@ -7,4 +7,5 @@ export type CrewMemberType = {
   agency: string;
   name: string;
   patches: string[];
+  launchNames: string[];
 };

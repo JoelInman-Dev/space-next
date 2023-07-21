@@ -30,8 +30,10 @@ export default function CrewCard({
           <Button asChild>
             <Link href={crewMember.wikipedia}>View Wiki</Link>
           </Button>
-          <CardDescription>
-            <p>Launch Patches: </p>
+          <CardDescription className="flex flex-col items-center">
+            <p className="text-xl font-bold text-slate-400 pb-2">
+              {crewMember.launchNames}
+            </p>
             {crewMember.patches.map((patch) => {
               return (
                 <div className="relative h-16 w-16">
