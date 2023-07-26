@@ -16,16 +16,6 @@ export default function SignOutForm() {
     // if no session then redirect to signin page
     if (!session) {
       router.push("/");
-    }
-    // end session on the horos server
-    const response = await AuthService.logout(
-      session?.user?.name as string,
-      session?.user?.accessToken as string
-    );
-
-    if (response?.error) {
-      // show a toast to the user// set toast content
-      console.log(response.error);
     } else {
       //successfully logged out so now invoke client-side signout to desroy client session
       await signOut({ redirect: false });

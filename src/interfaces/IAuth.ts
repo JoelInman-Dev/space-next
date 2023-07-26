@@ -1,23 +1,27 @@
 export interface IAuthLoginCredentials {
-  grant_type: string | undefined;
   username: string | undefined;
   password: string | undefined;
 }
 
 export interface IAuthLogoutCredentials {
-  grant_type: string | undefined;
-  "X-API-KEY": string | undefined;
   username: string | undefined;
 }
 export interface IAuthData {
   id: string;
   name: string;
+  username: string;
   email: string;
   image: string;
   role: string;
-  capabilities: string;
-  accessToken: string;
-  refreshToken: string | undefined;
+  description: string;
+  profileId: string;
+}
+
+export interface IAuthUserProfile {
+  id: string;
+  description: string;
+  image: string;
+  userId: string;
 }
 
 export interface IAuthMessage {

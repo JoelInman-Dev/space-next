@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
+import Link from "next/link";
 
 export default function SignInForm() {
   const router = useRouter();
@@ -93,9 +94,9 @@ export default function SignInForm() {
           <div>
             <Button type="submit">Submit</Button>
           </div>
-          {/* <div>
-            <Link href="/forgot-password">{t("button_forgot_password")}</Link>
-          </div> */}
+          <div>
+            <Link href="/forgot-password">Forgot Your Password?</Link>
+          </div>
         </div>
       </form>
     </Form>

@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// User profiles - users id is 1:1 with userProfiles userId which is unique
+// username in users is unique and indexed
+model userProfiles {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  description String
+  image       String
+  userId      String @unique(map: "userId_1") @db.ObjectId
+  user        users  @relation(fields: [userId], references: [id])
+}
+
+model users {
+  id       String        @id @default(auto()) @map("_id") @db.ObjectId
+  created  DateTime      @db.Date
+  email    String
+  name     String
+  password String
+  role     String
+  updated  DateTime      @db.Date
+  username String        @unique(map: "username_1")
+  profile  userProfiles?
+}

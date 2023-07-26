@@ -2,101 +2,50 @@ import {
   IAuthData,
   IAuthMessage,
   IAuthLoginCredentials,
-  IAuthLogoutCredentials,
   IAuthResetPasswordCredentials,
   IAuthForgotPasswordCredentials,
+  IAuthUserProfile,
 } from "@/interfaces/IAuth";
 import { ILoginCredentials } from "@/interfaces/ILoginCredentials";
-import { getApiUrl } from "@/utils/ApiFunctions";
-
+import { PrismaClient } from "@prisma/client";
 // LOGIN
 export const login = async (credentials: ILoginCredentials): Promise<any> => {
   const { username, password } = credentials; // extract the credentials
   const payload: IAuthLoginCredentials = {
-    grant_type: "bearer",
     username: username,
     password: password,
   };
-
-  if (username && password) {
-    const res = await fetch(getApiUrl("auth"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
+  // if username and password provide
+  if (payload) {
+    const prisma = new PrismaClient();
+    const loginUser = await prisma.users.findUnique({
+      where: { username: username, password: password },
     });
 
-    const response = await res.json();
-
-    // if fetch response is ok but HOROS errored, throw error
-    if (!response.status) {
+    if (!loginUser) {
       const error: IAuthMessage = {
         error: true,
-        message: response.message.string,
+        message: "Username or Password are incorrect!",
       };
-
       return error;
     }
+    // findunique will return null if no userProfile is found for the user
+    const userProfile: IAuthUserProfile | null =
+      await prisma.userProfiles.findUnique({
+        where: { userId: loginUser.id },
+      });
 
-    // if fetch response is ok and HOROS is ok, return user object to session
-    if (response.status) {
-      const user: IAuthData = {
-        id: response.user.id,
-        name: response.user.username,
-        email: response.user.email,
-        image: response.user.avatar,
-        role: response.user.role,
-        capabilities: response.user.capabilities,
-        accessToken: response.key,
-        refreshToken: undefined,
-      };
-
-      return user;
-    }
-  }
-
-  const error: IAuthMessage = {
-    error: true,
-    message: "Username and Password are required!",
-  };
-
-  return error;
-};
-
-// LOGOUT
-export const logout = async (
-  username: string,
-  apiKey: string
-): Promise<any> => {
-  const payload: IAuthLogoutCredentials = {
-    grant_type: "bearer",
-    "X-API-KEY": apiKey,
-    username: username,
-  };
-
-  if (username) {
-    const res = await fetch(getApiUrl("auth/logout"), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const response = await res.json();
-
-    // if fetch response is ok but HOROS errored, throw error
-    if (!response.status) {
-      const error: IAuthMessage = {
-        error: true,
-        message: response.message.string,
-      };
-
-      return error;
-    } else {
-      return true;
-    }
+    const loggedInUser: IAuthData = {
+      id: loginUser.id,
+      name: loginUser.name,
+      username: loginUser.username,
+      email: loginUser.email,
+      image: userProfile ? userProfile?.image : "No Image",
+      role: loginUser.role,
+      description: userProfile ? userProfile?.description : "No description",
+      profileId: userProfile ? userProfile?.id : "No profile",
+    };
+    return loggedInUser;
   }
 };
 
@@ -116,6 +65,7 @@ export const forgotPassword = async (email: string): Promise<any> => {
 
   // get the response of the API endpoint
   const response = await res.json();
+  console.log("forgot password response: ", response);
 
   return response;
 };
@@ -129,24 +79,27 @@ export const resetPassword = async (
     encrypted_email: encryptedEmail,
     new_password: newPassword,
   };
+  console.log("payload: ", payload);
 
-  // send the form data to an internal API endpoint and
-  const res = await fetch(getApiUrl("auth/reset-password"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
+  if (payload) {
+    // update users collection with new password
+    const prisma = new PrismaClient();
+    // find user by email and get username and id
+    const user = await prisma.users.findFirst({
+      where: { email: encryptedEmail },
+    });
+    console.log("got user before password change: ", user);
+    if (user) {
+      const setPassword = await prisma.users.update({
+        where: {
+          email: encryptedEmail,
+          username: user?.username,
+          id: user?.id,
+        },
+        data: { password: newPassword },
+      });
 
-  // get the response of the API endpoint
-  const response = await res.json();
-
-  // if fetch response is ok but HOROS errored, throw error
-  const message: IAuthMessage = {
-    error: response.status,
-    message: response.message.string,
-  };
-
-  return message;
+      return setPassword;
+    }
+  }
 };

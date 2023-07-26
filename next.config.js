@@ -24,9 +24,15 @@ const nextConfig = {
   },
   env: {
     // .env not available everywhere so make secure copy of needed variables in here too
-    DEVELOPMENT_API_URL: process.env.DEVELOPMENT_API_URL,
     APPLICATION_NAME: process.env.APPLICATION_NAME ?? "SpaceNext",
     COMPANY_NAME: process.env.APP_DESCRIPTION ?? "Space Next API V4",
+    // SMTP
+    SMTP_HOST: process.env.SMTP_HOST,
+    SMTP_PORT: process.env.SMTP_PORT,
+    SMTP_USER: process.env.SMTP_USER,
+    SMTP_PASS: process.env.SMTP_PASS,
+    SMTP_FROM_NAME: process.env.SMTP_FROM_NAME,
+    SMTP_FROM_EMAIL: process.env.SMTP_FROM_EMAIL,
   },
 };
 
