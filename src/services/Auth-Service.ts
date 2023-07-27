@@ -5,9 +5,11 @@ import {
   IAuthResetPasswordCredentials,
   IAuthForgotPasswordCredentials,
   IAuthUserProfile,
+  IAuthRegisterCredentials,
 } from "@/interfaces/IAuth";
 import { ILoginCredentials } from "@/interfaces/ILoginCredentials";
 import { PrismaClient } from "@prisma/client";
+import { SHA1 } from "crypto-js";
 // LOGIN
 export const login = async (credentials: ILoginCredentials): Promise<any> => {
   const { username, password } = credentials; // extract the credentials
@@ -19,7 +21,7 @@ export const login = async (credentials: ILoginCredentials): Promise<any> => {
   if (payload) {
     const prisma = new PrismaClient();
     const loginUser = await prisma.users.findUnique({
-      where: { username: username, password: password },
+      where: { username: username, password: SHA1(password).toString() },
     });
 
     if (!loginUser) {
@@ -27,25 +29,58 @@ export const login = async (credentials: ILoginCredentials): Promise<any> => {
         error: true,
         message: "Username or Password are incorrect!",
       };
-      return error;
-    }
-    // findunique will return null if no userProfile is found for the user
-    const userProfile: IAuthUserProfile | null =
-      await prisma.userProfiles.findUnique({
-        where: { userId: loginUser.id },
-      });
 
-    const loggedInUser: IAuthData = {
-      id: loginUser.id,
-      name: loginUser.name,
-      username: loginUser.username,
-      email: loginUser.email,
-      image: userProfile ? userProfile?.image : "No Image",
-      role: loginUser.role,
-      description: userProfile ? userProfile?.description : "No description",
-      profileId: userProfile ? userProfile?.id : "No profile",
-    };
-    return loggedInUser;
+      return error;
+    } else {
+      // findunique will return null if no userProfile is found for the user
+      const userProfile: IAuthUserProfile | null =
+        await prisma.userProfiles.findUnique({
+          where: { userId: loginUser.id },
+        });
+
+      const loggedInUser: IAuthData = {
+        id: loginUser.id,
+        name: loginUser.name,
+        username: loginUser.username,
+        email: loginUser.email,
+        image: userProfile ? userProfile?.image : "No Image",
+        role: loginUser.role,
+        description: userProfile ? userProfile?.description : "No description",
+        profileId: userProfile ? userProfile?.id : "No profile",
+      };
+      return loggedInUser;
+    }
+  }
+};
+
+export const registerAccount = async (
+  username: string,
+  name: string,
+  email: string,
+  password: string
+): Promise<any> => {
+  const payload: IAuthRegisterCredentials = {
+    name: name,
+    username: username,
+    email: email,
+    password: password,
+  };
+  if (payload) {
+    // update users collection with new password
+    const prisma = new PrismaClient();
+    // find user by email and get username and id
+    const newUser = await prisma.users.create({
+      data: {
+        name: name,
+        username: username,
+        email: email,
+        password: password,
+        role: "user",
+        created: new Date(),
+        updated: new Date(),
+      },
+    });
+    return newUser;
   }
 };
 
@@ -88,7 +123,6 @@ export const resetPassword = async (
     const user = await prisma.users.findFirst({
       where: { email: encryptedEmail },
     });
-    console.log("got user before password change: ", user);
     if (user) {
       const setPassword = await prisma.users.update({
         where: {
@@ -96,9 +130,8 @@ export const resetPassword = async (
           username: user?.username,
           id: user?.id,
         },
-        data: { password: newPassword },
+        data: { password: SHA1(newPassword).toString() },
       });
-
       return setPassword;
     }
   }

@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from "next/navigation";
-import * as AuthService from "@/services/Auth-Service";
 import { getSession, signOut } from "next-auth/react";
 import { AlertDialogAction, AlertDialogCancel } from "../ui/alert-dialog";
 

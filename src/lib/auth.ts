@@ -14,17 +14,17 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials, req) {
         const payload: ILoginCredentials = {
           username: credentials?.username,
-          password: credentials?.password,
+          password: credentials?.password || "",
         };
 
         // call the service passing credentials (username and password).
         // the returned value will be the authentication object from the auth server or an error
         const user = await AuthService.login(payload);
+
         if (user.error) {
           // throw an error to be handled by the callback
           throw new Error(user.errorMessage);
         }
-
         return user;
       },
     }),
@@ -37,9 +37,11 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session && session.user) {
+        session.user.id = token.id;
         session.user.role = token.role ? token.role : "user";
-        session.user.capabilities = token.capabilities;
-        session.user.accessToken = token.accessToken;
+        session.user.username = token.username;
+        session.user.description = token.description;
+        session.user.profileId = token.profileId;
       }
 
       return session;

@@ -62,12 +62,12 @@ export default function ResetPasswordForm() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    console.log("onsubmit res", res);
+    const response = await res.json();
 
-    // if (response.error) {
-    //   router.push("/");
-    // }
-    // return response;
+    if (response) {
+      router.push("/");
+    }
+    return response;
   }
 
   return (

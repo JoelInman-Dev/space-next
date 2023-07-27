@@ -18,9 +18,11 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import Link from "next/link";
+import useShadcnToast from "@/hooks/UseShadcnToast";
 
 export default function SignInForm() {
   const router = useRouter();
+  const { showToast, setToastContent } = useShadcnToast();
 
   // 1. Define your form schema.
   const formSchema = z.object({
@@ -49,15 +51,25 @@ export default function SignInForm() {
       redirect: false,
     })
       .then((response) => {
-        if (response?.error) {
-          alert(response.error);
+        if (response?.error !== null) {
+          showToast({
+            title: "There was a login Error",
+            description: "Username or Password are incorrect!",
+          });
         } else {
+          showToast({
+            title: "Loading dashboard for " + values.username,
+            description: "You have successfully logged in.",
+          });
           // successfully logged in so now redirect to the /admin area
           router.push("/admin");
         }
       })
       .catch((error) => {
-        alert(error);
+        showToast({
+          title: "Caught a login Error",
+          description: error,
+        });
       });
   }
 

@@ -16,7 +16,18 @@ export interface IAuthData {
   description: string;
   profileId: string;
 }
-
+export interface IAuthRegisterCredentials {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+}
+export interface IAuthProfileCredentials {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+}
 export interface IAuthUserProfile {
   id: string;
   description: string;
