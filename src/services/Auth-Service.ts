@@ -47,6 +47,7 @@ export const login = async (credentials: ILoginCredentials): Promise<any> => {
         role: loginUser.role,
         description: userProfile ? userProfile?.description : "No description",
         profileId: userProfile ? userProfile?.id : "No profile",
+        updated: loginUser.updated,
       };
       return loggedInUser;
     }
@@ -107,30 +108,32 @@ export const forgotPassword = async (email: string): Promise<any> => {
 
 // RESET PASSWORD
 export const resetPassword = async (
-  newPassword: string,
-  encryptedEmail: string
+  credentials: IAuthResetPasswordCredentials
 ): Promise<any> => {
+  const { encryptedEmail, newPassword } = credentials; // extract the credentials
   const payload: IAuthResetPasswordCredentials = {
-    encrypted_email: encryptedEmail,
-    new_password: newPassword,
+    encryptedEmail: encryptedEmail,
+    newPassword: newPassword,
   };
-  console.log("payload: ", payload);
 
   if (payload) {
     // update users collection with new password
     const prisma = new PrismaClient();
     // find user by email and get username and id
     const user = await prisma.users.findFirst({
-      where: { email: encryptedEmail },
+      where: { email: encryptedEmail! },
     });
     if (user) {
       const setPassword = await prisma.users.update({
         where: {
-          email: encryptedEmail,
+          email: encryptedEmail!,
           username: user?.username,
           id: user?.id,
         },
-        data: { password: SHA1(newPassword).toString() },
+        data: {
+          password: SHA1(newPassword).toString(),
+          updated: new Date(),
+        },
       });
       return setPassword;
     }

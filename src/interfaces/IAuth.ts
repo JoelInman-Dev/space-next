@@ -15,6 +15,7 @@ export interface IAuthData {
   role: string;
   description: string;
   profileId: string;
+  updated: Date;
 }
 export interface IAuthRegisterCredentials {
   name: string;
@@ -45,6 +46,6 @@ export interface IAuthForgotPasswordCredentials {
 }
 export interface IAuthResetPasswordCredentials {
   "X-API-KEY"?: string | undefined;
-  encrypted_email?: string | undefined;
-  new_password: string;
+  encryptedEmail?: string | null;
+  newPassword: string;
 }

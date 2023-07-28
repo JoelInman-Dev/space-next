@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
         session.user.username = token.username;
         session.user.description = token.description;
         session.user.profileId = token.profileId;
+        session.user.updated = token.updated;
       }
 
       return session;

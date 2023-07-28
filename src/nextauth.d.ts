@@ -7,6 +7,7 @@ interface IUser extends DefaultUser {
   username: string;
   description: string;
   profileId: string;
+  updated: Date;
 }
 
 declare module "next-auth" {

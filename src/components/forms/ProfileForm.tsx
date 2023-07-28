@@ -13,28 +13,35 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { IAuthProfileCredentials } from "@/interfaces/IAuth";
-import { SHA1 } from "crypto-js";
+import { IAuthResetPasswordCredentials } from "@/interfaces/IAuth";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
+import P from "../typography/p";
 
 export default function ProfileForm({ user }: { user: IUser }) {
   const { showToast } = useShadcnToast();
+  const router = useRouter();
+  const updated = user.updated;
+  console.log("updated: ", updated);
 
   // Define your form schema.
-  const formSchema = z.object({
-    username: z.string().min(4, {
-      message: "Username must be at least 4 characters.",
-    }),
-    fullName: z.string().min(4, {
-      message: "Please enter your Full Name.",
-    }),
-    newPassword: z.string().min(6, {
-      message: "Password must be at least 6 characters.",
-    }),
-    confirmPassword: z.string().min(6, {
-      message: "Password must be at least 6 characters.",
-    }),
-  });
+  const formSchema = z
+    .object({
+      username: z.string().min(4, {
+        message: "Username must be at least 4 characters.",
+      }),
+      fullName: z.string().min(4, {
+        message: "Please enter your Full Name.",
+      }),
+      newPassword: z.string().min(8, {
+        message: "Password must be at least 6 characters.",
+      }),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: "Passwords do not match.",
+      path: ["confirmPassword"],
+    });
 
   // Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -49,28 +56,34 @@ export default function ProfileForm({ user }: { user: IUser }) {
 
   // Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const payload: IAuthProfileCredentials = {
-      username: values.username,
-      name: values.fullName,
-      email: user?.email || "",
-      password: SHA1(values.newPassword).toString(),
+    const payload: IAuthResetPasswordCredentials = {
+      encryptedEmail: user.email,
+      newPassword: values.newPassword,
     };
-    console.log(payload);
 
-    // // post profile update details to the api
-    // const res = await fetch("/api/auth/updateProfile", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(payload),
-    // });
-    // // get the response
-    // const response = await res.json();
-    showToast({
-      title: "Updating Profile: Success",
-      description: "Thanks for updating your profile",
+    // post the reset password payload to the api
+    const res = await fetch("/api/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
+
+    const response = await res.json();
+    console.log("response onSubmit: ", response);
+
+    if (response.message) {
+      showToast({
+        title: "Updating Profile: Success",
+        description: "Thanks for updating your profile",
+      });
+      router.push("/admin");
+    } else {
+      showToast({
+        title: "Updating Profile: Error",
+        description: "There was an error updating your profile",
+      });
+    }
+    return response;
   }
 
   return (
@@ -140,6 +153,7 @@ export default function ProfileForm({ user }: { user: IUser }) {
           <div>
             <Button type="submit">Update</Button>
           </div>
+          <P>Last Updated:</P>
         </div>
       </form>
     </Form>

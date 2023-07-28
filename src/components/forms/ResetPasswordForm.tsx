@@ -54,8 +54,8 @@ export default function ResetPasswordForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // reset password
     const payload: IAuthResetPasswordCredentials = {
-      encrypted_email: values.email,
-      new_password: values.password,
+      encryptedEmail: values.email,
+      newPassword: values.password,
     };
     const res = await fetch("/api/auth/reset-password", {
       method: "POST",
