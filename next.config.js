@@ -26,6 +26,12 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "photos.marinetraffic.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   env: {

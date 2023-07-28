@@ -20,7 +20,7 @@ export default function AdminLayout({
     <>
       <div className="min-h-screen flex flex-col justify-between">
         <AdminHeader />
-        <main className="flex flex-wrap justify-between">{children}</main>
+        <main className="flex flex-wrap justify-center">{children}</main>
         <AdminFooter />
       </div>
     </>

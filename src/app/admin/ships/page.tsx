@@ -1,4 +1,5 @@
-import P from "@/components/typography/p";
+import ShipSlide from "@/components/sliders/shipSlide";
+import SliderWrapper from "@/components/sliders/sliderWrapper";
 import { OriginalShipsType } from "@/types/original-ships-type";
 import { ShipsType } from "@/types/ships-type";
 
@@ -15,9 +16,8 @@ async function getShips() {
     return {
       id: ship.id,
       name: ship.name,
-      flight_number: ship.flight_number,
       type: ship.type,
-      weight: ship.mass_kg ?? 0,
+      weight: ship.mass_kg ?? "Unknown",
       image: ship.image ?? "/spacenext-logo.png",
       built: ship.year_built,
       port: ship.home_port,
@@ -29,25 +29,19 @@ async function getShips() {
 }
 
 export default async function Ships() {
+  // get ships data
   const ships: ShipsType[] = await getShips();
   return (
     <>
-      <div className="container columns-4 flex flex-wrap">
-        {ships.map((ship: ShipsType) => {
-          return (
-            <>
-              <div className="flex flex-wrap" key={ship.id}>
-                <div className="flex m-2 border rounded-sm flex-col">
-                  <P>NAME: {ship.name}</P>
-                  <P>ID: {ship.id}</P>
-                  <P>WEIGHT: {ship.weight}KG</P>
-                  <P>TYPE: {ship.type}</P>
-                  <P>DOCKED @ {ship.port}</P>
-                </div>
-              </div>
-            </>
-          );
-        })}
+      <div className="container">
+        <SliderWrapper>
+          {ships.map((ship: ShipsType) => {
+            return (
+              // return keen-slider component for each ship
+              <ShipSlide ship={ship} />
+            );
+          })}
+        </SliderWrapper>
       </div>
     </>
   );

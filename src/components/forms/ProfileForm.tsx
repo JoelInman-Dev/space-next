@@ -13,10 +13,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import {
-  IAuthProfileCredentials,
-  IAuthRegisterCredentials,
-} from "@/interfaces/IAuth";
+import { IAuthProfileCredentials } from "@/interfaces/IAuth";
 import { SHA1 } from "crypto-js";
 import { Button } from "../ui/button";
 
@@ -60,7 +57,7 @@ export default function ProfileForm({ user }: { user: IUser }) {
     };
     console.log(payload);
 
-    // // post register details to the api
+    // // post profile update details to the api
     // const res = await fetch("/api/auth/updateProfile", {
     //   method: "POST",
     //   headers: {
