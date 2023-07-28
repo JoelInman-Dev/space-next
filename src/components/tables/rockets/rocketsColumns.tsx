@@ -1,12 +1,10 @@
 "use client";
 
-import H3 from "@/components/typography/h3";
 import H4 from "@/components/typography/h4";
-import H5 from "@/components/typography/h5";
 import { Button } from "@/components/ui/button";
 import { RocketsType } from "@/types/rockets-type";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 
 export const rocketsColumns: ColumnDef<RocketsType>[] = [
   {
